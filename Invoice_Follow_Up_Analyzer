@@ -1,0 +1,67 @@
+# The purpose of this code is to analyze invoice data and determine which invoices are considered a high priority and need to be contacted.
+
+# Generated invoice dataset to show invoice id, vendor name, invoice amount, invoice paid status, and days the invoice is overdue.
+
+invoices = [
+    {"id": "INV001", "vendor": "Amazon", "amount": 450,  "status": "Paid",   "days_overdue": 0},
+    {"id": "INV002", "vendor": "Staples","amount": 1200, "status": "Unpaid", "days_overdue": 18},
+    {"id": "INV003", "vendor": "FedEx",  "amount": 300,  "status": "Unpaid", "days_overdue": 5},
+    {"id": "INV004", "vendor": "UPS",    "amount": 800,  "status": "Paid",   "days_overdue": 0},
+    {"id": "INV005", "vendor": "Amazon", "amount": 650,  "status": "Unpaid", "days_overdue": 45},
+    {"id": "INV006", "vendor": "Dell",   "amount": 2000, "status": "Unpaid", "days_overdue": 2},
+]
+
+# The below script contains a function that will summarize the invoice dataset by providing:
+# The total amount of all invoices, the total amount of all invoices that are unpaid, and the count of unpiad invoices.
+
+def invoice_summary(invoices):
+  total_amount = 0
+  total_unpaid_amount = 0
+  total_unpaid_count = 0
+
+  for invoice in invoices:
+    total_amount += invoice['amount']
+
+    if invoice['status'] == 'Unpaid':
+      total_unpaid_amount += invoice['amount']
+      total_unpaid_count += 1
+
+  return total_amount, total_unpaid_amount, total_unpaid_count
+
+total_amount, total_unpaid_amount, total_unpaid_count = invoice_summary(invoices)
+
+# The below function analyzes the invoices and determines what invoices need to be followed up with based on unpaid invoice status, and 30 days or more overdue or are over $500. 
+
+def follow_up_invoices(invoices):
+  follow_up_ids = []
+
+  for invoice in invoices:
+    if invoice['status'] == 'Unpaid' and (invoice['days_overdue'] >= 30 or invoice['amount'] > 500):
+      follow_up_ids.append(invoice['id'])
+
+  return follow_up_ids
+
+follow_ids = follow_up_invoices(invoices)
+
+# The below function assigns a priority level to invoices based on unpaid status, days overdue, and amount.
+
+def priority_level(invoice):
+    if invoice['status'] == 'Unpaid' and (invoice['days_overdue'] >= 30 or invoice['amount'] > 1000):
+      return 'HIGH'
+    elif invoice['status'] == 'Unpaid':
+      return 'MEDIUM'
+    else:
+      return 'NONE'
+
+# An invoice summary report is printed to show the total amount of invoices, total unpaid amount, and count of unpaid invoices.
+# A follow up invoice report is printed to show invoices that are considered high priority and need to be followed up with.
+
+print('Invoice Summary:')
+print(f"Total Amount: ${total_amount}")
+print(f"Total Unpaid Amount: ${total_unpaid_amount}")
+print(f"Total Unpaid Count: {total_unpaid_count}")
+print('Follow Up Invoices:')
+for invoice in invoices:
+  if invoice['id'] in follow_ids:
+    priority = priority_level(invoice)
+    print(f"{invoice['id']} | {invoice['vendor']} | ${invoice['amount']} | {invoice['days_overdue']} days overdue | {priority}")
